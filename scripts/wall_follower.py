@@ -64,13 +64,13 @@ class FollowWall(object):
             print("object too far: drive to object")
             # If the closest angle is on the left or back side,
             #   stop moving forward and turn left.
-            if closest_angle >= 50 and closest_angle <= 225:
-                self.twist.angular.z = 0.6
+            if closest_angle >= 55 and closest_angle <= 225:
+                self.twist.angular.z = 0.4
                 self.twist.linear.x = 0.00
             # If the closest angle is on the right or front side,
             #   stop moving forward and turn right.
-            elif closest_angle < 40 or closest_angle > 225:
-                self.twist.angular.z = -0.6
+            elif closest_angle < 35 or closest_angle > 225:
+                self.twist.angular.z = -0.4
                 self.twist.linear.x = 0.00
             # If the closest angle is about 45 degrees to the left
             #   of the robot, stop turning and go forward.
@@ -83,13 +83,13 @@ class FollowWall(object):
             print("object too close: drive away")
             # If the closest angle is on the left or front side,
             #   stop moving forward and turn right.
-            if closest_angle < 130 or closest_angle > 315:
-                self.twist.angular.z = -0.6
+            if closest_angle < 125 or closest_angle > 315:
+                self.twist.angular.z = -0.4
                 self.twist.linear.x = 0.00
             # If the closest angle is on the right or back side,
             #   stop moving forward and turn left.
-            elif closest_angle > 140 and closest_angle <= 315:
-                self.twist.angular.z = 0.6
+            elif closest_angle > 145 and closest_angle <= 315:
+                self.twist.angular.z = 0.4
                 self.twist.linear.x = 0.00
             # If the closest angle is about 135 degrees to the left
             #   of the robot, stop turning and go forward.

@@ -34,7 +34,7 @@ class FollowPerson(object):
         # Loop through the list of ranges to find the closest angle
         #   and the closest angle's range.
         closest_angle = 0
-        closest_angle_range = 100
+        closest_angle_range = 100.0
         angle = 0
         for angle_range in data.ranges:
             if angle_range < closest_angle_range and angle_range != 0:
@@ -56,7 +56,7 @@ class FollowPerson(object):
 
         
         # Go forward if not close enough to person.
-        if (closest_angle_range == 0.0 or closest_angle_range >= distance):   
+        if closest_angle_range >= distance:   
             self.twist.linear.x = 0.1
         # Close enough to person, stop.
         else:
