@@ -93,11 +93,15 @@ class FollowWall(object):
         elif closest_angle_range > max_distance:
             print("object too far: drive to object")
             # If the closest angle is on the left, turn left.
-            if closest_angle >= 45 and closest_angle <= 124:
+            if closest_angle >= 50 and closest_angle <= 124:
                 self.twist.angular.z = 0.6
+                self.twist.linear.x = 0.00
             # If the closest angle is on the right, turn right.
-            else:
+            elif closest_angle < 40 or closest_angle > 124:
                 self.twist.angular.z = -0.6
+                self.twist.linear.x = 0.00
+            else:
+                self.twist.angular.z = 0.0
             # If the angle is within the 4 degrees on either
             #   side of the front of the robot, stop turning.
             # else:
@@ -105,35 +109,39 @@ class FollowWall(object):
         elif closest_angle_range < min_distance:
             print("object too close: drive away")
             # If the closest angle is on the left, right.
-            if closest_angle < 45 or closest_angle > 225:
+            if closest_angle < 130 or closest_angle > 315:
                 self.twist.angular.z = -0.6
+                self.twist.linear.x = 0.00
             # If the closest angle is on the right, left.
+            elif closest_angle > 140 and closest_angle <= 315:
+                self.twist.angular.z = 0.6
+                self.twist.linear.x = 0.00
             else:
-                self.twist.angular.z = -0.6
+                self.twist.angular.z = 0.0
             # If the angle is within the 4 degrees on either
             #   side of the front of the robot, stop turning.
             # else:
             #     self.twist.angular.z = 0.0
-        elif closest_angle >= 85 and closest_angle <= 95:
+        elif closest_angle >= 87 and closest_angle <= 93:
             print("on wall: straight")
             #if turn:
             self.twist.angular.z = 0.0
             #else:
             #    self.twist.angular.z = 0.0
-        elif closest_angle < 85 or closest_angle >= 270:
+        elif closest_angle < 87 or closest_angle >= 270:
             print("right")
             #if turn:
             self.twist.angular.z = -0.2
             # else:
             #     self.twist.angular.z = 0.0
-            self.twist.linear.x = 0.0
-        elif closest_angle > 95 and closest_angle < 270:
+            #self.twist.linear.x = 0.0
+        elif closest_angle > 93 and closest_angle < 270:
             print("left")
             #if turn:
             self.twist.angular.z = 0.2
             # else:
             #     self.twist.angular.z = 0.0
-            self.twist.linear.x = 0.0
+            #self.twist.linear.x = 0.0
         else:
             print("straight 3")
             self.twist.angular.z = 0.0
