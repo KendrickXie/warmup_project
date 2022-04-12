@@ -41,7 +41,7 @@ The `follow_wall(data)` method sets linear velocity to move forward. It then loo
 The `run()` method calls `rospy.spin()` to keep the program alive.
 
 Lastly, in the main function, the ROS node is declared and ran using `node.run()`.
-## gif
+## gif (2x speed)
 ![wall_follower.gif](https://github.com/KendrickXie/warmup_project/blob/main/gifs/wall_follower.gif)
 
 # Challenges
