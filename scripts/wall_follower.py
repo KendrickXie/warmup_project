@@ -39,39 +39,9 @@ class FollowWall(object):
     def follow_wall(self, data):
         # Set Twist message to move forward
         self.twist.linear.x = 0.05
-
-        # too_close = False
-        # angle = 0
-
-        # for angle_range in data.ranges:
-        #     if angle_range < distance:
-        #         too_close = True
-        #         break
-        #     angle = angle + 1
-        #     if angle > 179:
-        #         break
         
-        # if too_close:
-        #     # turn right
-        #     self.twist.linear.x = -0.05
-        #     self.twist.angular.z = 0.0
-        # # if something is in front of the robot
-
-
-        # elif data.ranges[45] > distance or data.ranges[135] > distance:
-        #     #turn left
-        #     print("left too far")
-        #     self.twist.angular.z = 0.1
-        
-        # Loop through the list of ranges to find if there is any
-        #   object detected within range
-        # any_object = False
-        # for angle_range in data.ranges:
-        #     if angle_range != 0.0:
-        #         any_object = True
-        #         break
-        
-
+        # Loop through the list of ranges to find the closest angle
+        #   and the closest angle's range.
         closest_angle = 0
         closest_angle_range = 100.0
         angle = 0
@@ -80,70 +50,64 @@ class FollowWall(object):
                 closest_angle_range = angle_range
                 closest_angle = angle
             angle = angle + 1
-        
-        turn = False
-        if closest_angle_range > max_distance:
-            turn = True
 
-        #print(closest_angle_range)
+       
         # If there is no object, drive forward.
         if closest_angle_range == 100.0:
             print("no object: straight")
             self.twist.angular.z = 0.0
+        # If the closest object is outside of max_distance,
+        #   turn about 45 degrees to the right of it,
+        #   and if already in the right direction, go forward.
         elif closest_angle_range > max_distance:
             print("object too far: drive to object")
-            # If the closest angle is on the left, turn left.
-            if closest_angle >= 50 and closest_angle <= 124:
+            # If the closest angle is on the left or back side,
+            #   stop moving forward and turn left.
+            if closest_angle >= 50 and closest_angle <= 225:
                 self.twist.angular.z = 0.6
                 self.twist.linear.x = 0.00
-            # If the closest angle is on the right, turn right.
-            elif closest_angle < 40 or closest_angle > 124:
+            # If the closest angle is on the right or front side,
+            #   stop moving forward and turn right.
+            elif closest_angle < 40 or closest_angle > 225:
                 self.twist.angular.z = -0.6
                 self.twist.linear.x = 0.00
+            # If the closest angle is about 45 degrees to the left
+            #   of the robot, stop turning and go forward.
             else:
                 self.twist.angular.z = 0.0
-            # If the angle is within the 4 degrees on either
-            #   side of the front of the robot, stop turning.
-            # else:
-            #     self.twist.angular.z = 0.0
+        # If the closest object is under min_distance,
+        #   turn about 135 degrees to the right of it,
+        #   and if already in the right direction, go forward.
         elif closest_angle_range < min_distance:
             print("object too close: drive away")
-            # If the closest angle is on the left, right.
+            # If the closest angle is on the left or front side,
+            #   stop moving forward and turn right.
             if closest_angle < 130 or closest_angle > 315:
                 self.twist.angular.z = -0.6
                 self.twist.linear.x = 0.00
-            # If the closest angle is on the right, left.
+            # If the closest angle is on the right or back side,
+            #   stop moving forward and turn left.
             elif closest_angle > 140 and closest_angle <= 315:
                 self.twist.angular.z = 0.6
                 self.twist.linear.x = 0.00
+            # If the closest angle is about 135 degrees to the left
+            #   of the robot, stop turning and go forward.
             else:
                 self.twist.angular.z = 0.0
-            # If the angle is within the 4 degrees on either
-            #   side of the front of the robot, stop turning.
-            # else:
-            #     self.twist.angular.z = 0.0
+        # If the closest angle is about 90 degrees to the left
+        #   of the robot, go straight.
         elif closest_angle >= 87 and closest_angle <= 93:
-            print("on wall: straight")
-            #if turn:
             self.twist.angular.z = 0.0
-            #else:
-            #    self.twist.angular.z = 0.0
+        # If the closest angle is within about the front 180 degrees
+        #   of the robot, turn right.
         elif closest_angle < 87 or closest_angle >= 270:
-            print("right")
-            #if turn:
             self.twist.angular.z = -0.2
-            # else:
-            #     self.twist.angular.z = 0.0
-            #self.twist.linear.x = 0.0
+        # If the closest angle is within about the back 180 degrees
+        #   of the robot, turn left.
         elif closest_angle > 93 and closest_angle < 270:
-            print("left")
-            #if turn:
             self.twist.angular.z = 0.2
-            # else:
-            #     self.twist.angular.z = 0.0
-            #self.twist.linear.x = 0.0
+        # If none of the conditions are met, go straight.
         else:
-            print("straight 3")
             self.twist.angular.z = 0.0
         
         
