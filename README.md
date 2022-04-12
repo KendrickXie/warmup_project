@@ -51,5 +51,6 @@ The most challenging part of driving the robot in a square was finding the right
 For driving in a square, the timing to turn 90 degrees could be tuned to be more precise. For following a person, it would be interesting to make the robot go backwards if a person in front of it moves forward. For following a wall, if I had more time, I would make the robot follow the wall with less turning adjustments.
 
 # Takeaways
-• The robots do not always behave the same in simulation as they do in real life. For this reason it is important to come in person early enough to debug any unexpected issues. For example, the robot in simulation needed to turn for a different amount of time than the physical robot to turn about 90 degrees.
+• The robots do not always behave the same in simulation as they do in real life. For this reason it is important to come in person early enough to debug any unexpected issues. For example, the robot in simulation needed to turn for a different amount of time than the physical robot to turn about 90 degrees.  
+
 • Although `rostopic ehco` is very useful, printing can still be very helpful when debugging. For example, when making the robot follow a wall, if the robot got stuck doing a certain behavior, it was helpful to print the behavior the robot was performing to find which behavior was the issue.
