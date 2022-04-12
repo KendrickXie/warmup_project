@@ -10,10 +10,12 @@ from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist, Vector3
 
 # How close we will get to a wall from the side.
-side_distance = 2.0
+max_distance = 0.5
+
+min_distance = 0.3
 
 # How close we will get to a wall from the front.
-front_distance = 0.7
+#front_distance = 0.7
 
 class FollowWall(object):
     """ This node publishes ROS messages making the robot follow a wall on its left side """
@@ -63,65 +65,79 @@ class FollowWall(object):
         
         # Loop through the list of ranges to find if there is any
         #   object detected within range
-        any_object = False
-        for angle_range in data.ranges:
-            if angle_range != 0.0:
-                any_object = True
-                break
-
+        # any_object = False
+        # for angle_range in data.ranges:
+        #     if angle_range != 0.0:
+        #         any_object = True
+        #         break
         
+
+        closest_angle = 0
+        closest_angle_range = 100.0
+        angle = 0
+        for angle_range in data.ranges:
+            if angle_range < closest_angle_range and angle_range != 0:
+                closest_angle_range = angle_range
+                closest_angle = angle
+            angle = angle + 1
+        
+        turn = False
+        if closest_angle_range > max_distance:
+            turn = True
+
+        #print(closest_angle_range)
         # If there is no object, drive forward.
-        if not any_object:
+        if closest_angle_range == 100.0:
+            print("no object: straight")
             self.twist.angular.z = 0.0
-        # If too close to an object in front, stop moving foward
-        #   and turn right.
-        elif data.ranges[0] != 0.0 and data.ranges[0] < front_distance:
-            print("right 1")
-            #turn right
-            self.twist.linear.x = 0.0
-            self.twist.angular.z = -0.5
-        # If the range at 45 degrees or 135 degrees is greater than
-        #   side_distance, turn left.
-        elif data.ranges[45] > side_distance and data.ranges[135] > side_distance and any_object: #TODO: could probably comment out any_object also try OR
-            print("left 3")
-            # turn left
-            self.twist.angular.z = 0.2
-        # If the ranges at 45 degrees and 135 degrees to the left of the robot
-        #   are both less than side_distance, within 0.05 of each other,
-        #   and are not 0, go straight.
-        elif (#data.ranges[45] < distance and data.ranges[135] < distance
-                data.ranges[45] - 0.05 < data.ranges[135]
-                and data.ranges[45] + 0.05 > data.ranges[135]
-                and data.ranges[45] != 0.0 and data.ranges[135] != 0.0):
-            print("straight 1")
-            # go straight
+        elif closest_angle_range > max_distance:
+            print("object too far: drive to object")
+            # If the closest angle is on the left, turn left.
+            if closest_angle >= 45 and closest_angle <= 124:
+                self.twist.angular.z = 0.6
+            # If the closest angle is on the right, turn right.
+            else:
+                self.twist.angular.z = -0.6
+            # If the angle is within the 4 degrees on either
+            #   side of the front of the robot, stop turning.
+            # else:
+            #     self.twist.angular.z = 0.0
+        elif closest_angle_range < min_distance:
+            print("object too close: drive away")
+            # If the closest angle is on the left, right.
+            if closest_angle < 45 or closest_angle > 225:
+                self.twist.angular.z = -0.6
+            # If the closest angle is on the right, left.
+            else:
+                self.twist.angular.z = -0.6
+            # If the angle is within the 4 degrees on either
+            #   side of the front of the robot, stop turning.
+            # else:
+            #     self.twist.angular.z = 0.0
+        elif closest_angle >= 85 and closest_angle <= 95:
+            print("on wall: straight")
+            #if turn:
             self.twist.angular.z = 0.0
-        # If nothing is detected at 45 degrees, but something is detected at
-        #   135 degrees, turn left.
-        elif data.ranges[45] == 0.0 and data.ranges[135] != 0.0:
-            print("left 1")
-            #turn left
-            self.twist.angular.z = 0.2
-        # If the range at 45 degrees is greater than at 135 degrees, turn left.
-        elif (data.ranges[45] > data.ranges[135] and data.ranges[135] != 0.0): #or (data.ranges[45] == 0.0 and data.ranges[135] != 0.0):
-            print("left 2")
-            # turn left
-            self.twist.angular.z = 0.2
-        # If the range at 45 degrees is less than at 135 degrees, turn right.
-        elif (data.ranges[45] < data.ranges[135] and data.ranges[45] != 0.0): #or (data.ranges[45] != 0.0 and data.ranges[135] == 0.0):
-            print("right 2")
-            # turn right
+            #else:
+            #    self.twist.angular.z = 0.0
+        elif closest_angle < 85 or closest_angle >= 270:
+            print("right")
+            #if turn:
             self.twist.angular.z = -0.2
-        # If nothing is detected at 90 degrees or 135 degrees, turn left.
-        elif (data.ranges[60] > side_distance or data.ranges[60] == 0.0) and any_object:#(data.ranges[45] > side_distance or data.ranges[45] == 0.0):
-            #turn left
-            print("left 4")
-            self.twist.angular.z = 0.5
-        # Otherwise go straight.
+            # else:
+            #     self.twist.angular.z = 0.0
+            self.twist.linear.x = 0.0
+        elif closest_angle > 95 and closest_angle < 270:
+            print("left")
+            #if turn:
+            self.twist.angular.z = 0.2
+            # else:
+            #     self.twist.angular.z = 0.0
+            self.twist.linear.x = 0.0
         else:
-            print("straight 2")
-            # go straight
+            print("straight 3")
             self.twist.angular.z = 0.0
+        
         
         # Publish the Twist message
         self.twist_pub.publish(self.twist)
