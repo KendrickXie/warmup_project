@@ -12,7 +12,7 @@ from geometry_msgs.msg import Twist, Vector3
 distance = 0.4
 
 class FollowPerson(object):
-    """ This node publishes ROS messages driving the robot in a square shape """
+    """ This node publishes ROS messages making the robot follow a person """
 
     def __init__(self):
         # initialize the ROS node
@@ -22,15 +22,17 @@ class FollowPerson(object):
         #   set self.drive_to_closest as the function to be used for callback.
         rospy.Subscriber("/scan", LaserScan, self.drive_to_closest)
 
-        # setup publisher to the cmd_vel ROS topic
+        # Setup publisher to the cmd_vel ROS topic.
         self.twist_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 
-        # create a default twist msg with values of all zeros
+        # Create a default Twist msg with values of all zeros.
         lin = Vector3()
         ang = Vector3()
         self.twist = Twist(linear=lin,angular=ang)
 
     def drive_to_closest(self, data):
+        # Loop through the list of ranges to find the closest angle
+        #   and the closest angle's range.
         closest_angle = 0
         closest_angle_range = 100
         angle = 0
@@ -41,31 +43,27 @@ class FollowPerson(object):
             angle = angle + 1
         
 
-        # if the angle is on the right, turn right
+        # If the closest angle is on the left, turn left.
         if closest_angle >= 5 and closest_angle <= 179:
             self.twist.angular.z = 0.6
-        # if the angle is on the left, turn left
+        # If the closest angle is on the right, turn right.
         elif closest_angle >= 180 and closest_angle <= 355:
             self.twist.angular.z = -0.6
-        # if the angle is within the 4 degrees on either
-        #   side of the front stop turning
+        # If the angle is within the 4 degrees on either
+        #   side of the front of the robot, stop turning.
         else:
             self.twist.angular.z = 0.0
 
-
-        if (closest_angle_range == 0.0 or closest_angle_range >= distance):
-            # Go forward if not close enough to person.
+        
+        # Go forward if not close enough to person.
+        if (closest_angle_range == 0.0 or closest_angle_range >= distance):   
             self.twist.linear.x = 0.1
+        # Close enough to person, stop.
         else:
-            # Close enough to person, stop.
             self.twist.linear.x = 0
         
-        print("closest range")
-        print(closest_angle_range)
-        print("closest angel")
-        print(closest_angle)
 
-        #publish the Twist message
+        # Publish the Twist message
         self.twist_pub.publish(self.twist)
 
     def run(self):
