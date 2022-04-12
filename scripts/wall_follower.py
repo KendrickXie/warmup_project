@@ -9,9 +9,10 @@ from sensor_msgs.msg import LaserScan
 # msgs needed for /cmd_vel
 from geometry_msgs.msg import Twist, Vector3
 
-# How close we will get to a wall from the side.
+# The maximum distance we will drive from the wall
 max_distance = 0.5
 
+# The minimum distance we will drive from the wall
 min_distance = 0.3
 
 # How close we will get to a wall from the front.
