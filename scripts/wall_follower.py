@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from turtle import distance
 import rospy
 
 # msg needed for /scan.
@@ -9,7 +10,7 @@ from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist, Vector3
 
 # How close we will get to a wall from the side.
-side_distance = 0.1
+side_distance = 2.0
 
 # How close we will get to a wall from the front.
 front_distance = 0.7
@@ -79,6 +80,12 @@ class FollowWall(object):
             #turn right
             self.twist.linear.x = 0.0
             self.twist.angular.z = -0.5
+        # If the range at 45 degrees or 135 degrees is greater than
+        #   side_distance, turn left.
+        elif data.ranges[45] > side_distance and data.ranges[135] > side_distance and any_object: #TODO: could probably comment out any_object also try OR
+            print("left 3")
+            # turn left
+            self.twist.angular.z = 0.2
         # If the ranges at 45 degrees and 135 degrees to the left of the robot
         #   are both less than side_distance, within 0.05 of each other,
         #   and are not 0, go straight.
@@ -105,17 +112,11 @@ class FollowWall(object):
             print("right 2")
             # turn right
             self.twist.angular.z = -0.2
-        # If the range at 45 degrees or 135 degrees is greater than
-        #   side_distance, turn left.
-        elif data.ranges[45] > distance and data.ranges[135] > distance and any_object: #TODO: could probably comment out any_object also try OR
-            print("left 3")
-            # turn left
-            self.twist.angular.z = 0.2
         # If nothing is detected at 90 degrees or 135 degrees, turn left.
-        elif data.ranges[90] == 0.0 or data.ranges[135] == 0.0:
+        elif (data.ranges[60] > side_distance or data.ranges[60] == 0.0) and any_object:#(data.ranges[45] > side_distance or data.ranges[45] == 0.0):
             #turn left
             print("left 4")
-            self.twist.angular.z = 0.2
+            self.twist.angular.z = 0.5
         # Otherwise go straight.
         else:
             print("straight 2")
